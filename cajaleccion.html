@@ -1,0 +1,23 @@
+<div class="oit-leccion" id="{{id}}">
+	<div class="descripcion">
+		<h3>{{titulo}}</h3>
+		<div>
+			{{descripcion}}
+			<p class="ultima-modificacion">
+				Última actualización: {{ultimaModificacion}}
+			</p>
+		</div>
+	</div>
+	<div class="leccion-info hidden-sm-down">
+		<a href="{{url}}">
+			<img src="/oit/img/{{estado}}.png" data-toggle="tooltip" data-placement="top" title="{{tooltip}}">
+			<img class="puntaje" src="/oit/img/numeros/{{puntaje}}.png">
+		</a>
+	</div>
+	<div class="leccion-info-sm oit-boton {{estado}} hidden-md-up">
+		<a href="{{url}}">
+			<h4>Ingresa a esta lección</h4>
+			<img class="puntaje-sm" src="/oit/img/numeros/{{puntaje}}.png">
+		</a>
+	</div>
+</div>
