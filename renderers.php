@@ -32,13 +32,19 @@ class OITRenderer extends format_topics_renderer{
             $section=$modinfo->get_section_info($thissection->section)->section;
             foreach ($modinfo->sections[$section] as $key => $value) {
                 $mod=$modinfo->cms[$value];
-                if($mod->modname=='hvp'){
+                if($mod->modname=='hvp' || $mod->modname=='scorm'){
 
-                    $puntaje=$grades[$mod->modname.$mod->instance]['puntaje'];
+                    $puntaje=intval($grades[$mod->modname.$mod->instance]['puntaje']);
                     $aprobo=$grades[$mod->modname.$mod->instance]['aprobo'];
 
+if($mod->modname=='hvp'){
+	$ultimaModificacion=userdate($DB->get_record('hvp',array('name'=>$mod->name),'timemodified')->timemodified,'%e de %B del %Y');
+}
 
-                    $ultimaModificacion=userdate($DB->get_record('hvp',array('name'=>$mod->name),'timemodified')->timemodified,'%e de %B del %Y');
+if($mod->modname=='scorm'){
+	$ultimaModificacion=userdate($DB->get_record('scorm',array('name'=>$mod->name),'timemodified')->timemodified,'%e de %B del %Y');
+}
+
 
                     $nombreCompletar=$DB->get_record('grade_items',array('id' => json_decode($mod->availability)->c[0]->id),'itemname')->itemname;
 
@@ -98,7 +104,6 @@ class OITRenderer extends format_topics_renderer{
         if(isset($grades['puntaje'])){
 
             $estado=$grades['puntaje_max']/2>$grades['puntaje']?'mal':'bien';
-
             $puntaje['respuestas_correctas']=$grades['puntaje'];
             $puntaje['estado']=$estado;
             $puntaje['personaje']="/oit/img/footer/$numeroPersonaje/footer_{$estado}_per.png";
