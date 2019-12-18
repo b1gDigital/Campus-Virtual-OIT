@@ -1,4 +1,4 @@
-<?php
+<?php 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir."/accesslib.php");
 require_once($CFG->dirroot."/course/renderer.php");
@@ -7,7 +7,7 @@ require_once($CFG->dirroot."/course/renderer.php");
 
 class OITUtils{
 	static private $grades;
-
+	
 	static public function formatFilesize($path){
 		$size = filesize($path);
 		$units = array( 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
@@ -17,49 +17,49 @@ class OITUtils{
 
 	function completed($courseid){
 		global $DB, $USER;
-
+		
 		$my_user = $USER->id;
 		$sql = "SELECT COUNT(c.id) FROM mdl_scorm_scoes_track AS st JOIN mdl_user AS u ON st.userid=u.id JOIN mdl_scorm AS sc ON sc.id=st.scormid	JOIN mdl_course AS c ON c.id=sc.course WHERE c.id=? AND st.value= ? AND u.id=?";
-
-
+		
+		
 		$sco= $DB->count_records_sql($sql, array('c.id'=>$courseid,'st.value'=>'passed','u.id'=>$my_user));
-
+			
 		//$sco = $DB->get_records_sql ($sql);
-
+				
 		return $sco;
 	}
-
+	
 	static public function getreporteusuarios(){
 		global $DB;
 
-		$sql="SELECT gg.id, CONCAT(u.firstname,' ',u.lastname) as nombre,
-		u.email as correo, u.suspended as estado,
+		$sql="SELECT gg.id, CONCAT(u.firstname,' ',u.lastname) as nombre, 
+		u.email as correo, u.suspended as estado, 
 		u.lastaccess as fecha_actividad,
 		SUM(CASE WHEN gg.rawgrade>=6 THEN 1 ELSE 0 END) as lecciones,
 		SUM(CASE WHEN gg.rawgrade>=6 THEN 1 ELSE 0 END) as aprobadas,
 		ROUND(
 		SUM(
 		CASE WHEN (
-		SELECT SUM(CASE WHEN _gg.rawgrade>=6 THEN 1 ELSE 0 END)
-		FROM {grade_grades} _gg
+		SELECT SUM(CASE WHEN _gg.rawgrade>=6 THEN 1 ELSE 0 END) 
+		FROM {grade_grades} _gg 
 		JOIN {grade_items} _gi on _gi.id = _gg.itemid
 		WHERE _gi.courseid=gi.courseid AND _gi.itemmodule='hvp' AND _gg.userid=gg.userid
 		)=(
-		SELECT COUNT(*)
+		SELECT COUNT(*) 
 		FROM {grade_items} _gi
 		WHERE _gi.courseid=gi.courseid AND _gi.itemmodule='hvp'
 		) THEN 1/(
-		SELECT COUNT(*)
+		SELECT COUNT(*) 
 		FROM {grade_items} _gi
 		WHERE _gi.courseid=gi.courseid AND _gi.itemmodule='hvp'
 		) ELSE 0 END
 		)
-		) as cursos
+		) as cursos 
 		FROM {user} u
-		JOIN {grade_grades} gg ON gg.userid = u.id
-		JOIN {grade_items} gi on gi.id = gg.itemid
-		JOIN {course} c ON c.id = gi.courseid
-		WHERE u.deleted=0 AND u.username<>'guest' AND gi.itemmodule='hvp'
+		JOIN {grade_grades} gg ON gg.userid = u.id 
+		JOIN {grade_items} gi on gi.id = gg.itemid 
+		JOIN {course} c ON c.id = gi.courseid 
+		WHERE u.deleted=0 AND u.username<>'guest' AND gi.itemmodule='hvp' 
 		GROUP BY nombre ORDER BY fecha_actividad DESC";
 
 		$resultado=$DB->get_records_sql($sql);
@@ -77,11 +77,11 @@ class OITUtils{
 
 	/**
 	 * Convertir un listado de tokens en html segun una plantilla
-	 *
+	 * 
 	 * @param  String 				$plantilla 	html con tokens dinamicos especificados {{asi}}
 	 * @param  array asociativo 	$array     	array asociativo con key llamados como los tokens dinamicos
 	 *                           				de la plantilla
-	 *
+	 *                           				
 	 * @return String            	html final generado a partir de una plantilla y un objeto de tokens
 	 */
 	static public function plantillarender($plantilla,$array){
@@ -91,18 +91,18 @@ class OITUtils{
 		return $plantilla;
 	}
 	static public function geticon($icon){
-		return "<i class='icon fa $icon fa-fw'></i>";
+		return "<i class='icon fa $icon fa-fw'></i>"; 
 	}
 	static private function setprogreso(int $estado){
 		$barra='';
 		$attr=array("data-toggle"=>"tooltip", "data-placement"=>"top", "title"=>"Hooray!");
 		$estadostr=array("Diagnóstico","Lecciones","Evaluación");
-		for ($i=0; $i <$estado ; $i++) {
+		for ($i=0; $i <$estado ; $i++) { 
 			$attr['class']="activado";
 			$attr['title']=$estadostr[$i];
 			$barra.=html_writer::tag('div',"",$attr);
 		}
-		for ($i=$estado; $i <3 ; $i++) {
+		for ($i=$estado; $i <3 ; $i++) { 
 			$attr['class']="desactivado";
 			$attr['title']=$estadostr[$i];
 			$barra.=html_writer::tag('div',"",$attr);
@@ -116,7 +116,7 @@ class OITUtils{
 		//echo $totales."Totales<br>";
 		//echo $aprobadas."Aprobadas<br>";
 		//echo $reprobadas."Reprobadas<br>";
-
+		
 		$estado=self::setprogreso(0);
 		$estado_boton='';
 		$quiz=self::getmodpage($course,'quiz',true);
@@ -144,17 +144,20 @@ class OITUtils{
 			$texto_boton='CONTINUAR CURSO';
 			$estado=self::setprogreso(1);
 
-		}elseif(self::$grades[$course->id]['diagnostico']&&($aprobadas+$reprobadas)===$totales&&($aprobadas+$reprobadas)!=0&&!self::$grades[$course->id]['evaluacion']&&$course->id!=="17"){
+//		}elseif(self::$grades[$course->id]['diagnostico']&&($aprobadas+$reprobadas)===$totales&&($aprobadas+$reprobadas)!=0&&!self::$grades[$course->id]['evaluacion']&&$course->id!=="17"){
+		}elseif(self::$grades[$course->id]['diagnostico']&&($aprobadas+$reprobadas)===$totales&&($aprobadas+$reprobadas)!=0&&!self::$grades[$course->id]['evaluacion']){
+
 			$info=html_writer::tag('p',"¡Felicitaciones!<br> ha terminado todas las lecciones.");
 			$url=$quiz['Evaluación'];
 			$estado_boton='';
 			$texto_boton='HACER EVALUACIÓN';
 			$estado=self::setprogreso(2);
 
-		}elseif(self::$grades[$course->id]['evaluacion']||$course->id==="17"){
+		}elseif(self::$grades[$course->id]['evaluacion']){
+//		}elseif(self::$grades[$course->id]['evaluacion']||$course->id==="17"){
 
 		//por qué course_id 17?
-
+		
 			$puntajeLecciones=round(50*self::$grades[$course->id]['puntaje']/self::$grades[$course->id]['puntaje_max']);
 			$puntajeEval=5*self::$grades[$course->id]['puntaje_evaluacion'];
 			$nota=round($puntajeLecciones+$puntajeEval);
@@ -183,57 +186,57 @@ class OITUtils{
 		global $DB;
 		return $DB->count_records('oit_supervisor_usuarios',array('id_supervisor'=>$userid))!=0;
 	}
+	
 
-
-
+	
 	static private function updategrades($userid){
 		global $DB,$USER,$CFG;
 		$sql='SELECT gg.itemid, gg.finalgrade, gg.rawgrademax, i.courseid FROM '.$CFG->prefix.'grade_grades gg JOIN '.$CFG->prefix.'grade_items i ON i.id=gg.itemid ';
 		$sql.="WHERE gg.userid=$userid AND gg.aggregationstatus='used'";
 		$grades=$DB->get_records_sql($sql);
 		//echo $USER->id;
-
-
+		
+		
 		$res=array();
 		foreach ($grades as $key => $value) {
 			$item=$DB->get_record('grade_items',array('id' => $value->itemid),'*');
 			$actividades=$DB->count_records('grade_items',array('courseid'=>$value->courseid,'itemtype'=>'mod','itemmodule'=>'hvp'));
 			$puntaje=$item->itemmodule==='hvp'?(int)$value->finalgrade:$value->finalgrade;
-
+			
 			$actividadSco=(count($DB->get_records_sql("select * from mdl_grade_items where courseid='$value->courseid' and itemmodule='scorm'")));
-
-			$scoCompleted=self::completed($value->courseid);
-
-
-
+			
+			$scoCompleted=self::completed($value->courseid);	
+			
+			
+			
 			//JAMP 171019 - El puntaje requiere una calificación del scorm
-
+			
 			$puntajeSco=$item->itemmodule==='scorm'?(int)$value->finalgrade:$value->finalgrade;
-
+			
 			//
-
-
+			
+			
 			$puntajemax=(int)$item->grademax;
 			//echo $puntajemax;
 
-
+			
 			//
-
-
-
+			
+						
+			
 			$res[$value->courseid][$item->itemmodule.$item->iteminstance]['puntaje']=$puntaje;
 			$res[$value->courseid][$item->itemmodule.$item->iteminstance]['puntaje_max']=$puntajemax;
 			$res[$value->courseid][$item->itemmodule.$item->iteminstance]['aprobo']=($puntaje/$puntajemax)>=0.6;
 
 			$res[$value->courseid]['diagnostico']=$res[$value->courseid]['diagnostico']?$res[$value->courseid]['diagnostico']:$item->itemname==='Diagnóstico';
 			$res[$value->courseid]['evaluacion']=$res[$value->courseid]['evaluacion']?$res[$value->courseid]['evaluacion']:$item->itemname==='Evaluación';
-
+			
 			$res[$value->courseid]['total_actividades']=$actividades;
-
+			
 			//JAMP 171019
-
+			
 			if ($actividadSco!=null) {
-
+				
 				$res[$value->courseid][$item->itemmodule.$item->iteminstance]['puntaje']=$puntajeSco;
 				$res[$value->courseid][$item->itemmodule.$item->iteminstance]['puntaje_max']=$puntajemax;
 				$res[$value->courseid][$item->itemmodule.$item->iteminstance]['aprobo']=($puntajeSco/$puntajemax)>=0.6;
@@ -241,13 +244,13 @@ class OITUtils{
 				$res[$value->courseid]['diagnostico']=$res[$value->courseid]['diagnostico']?$res[$value->courseid]['diagnostico']:$item->itemname==='Diagnóstico';
 				$res[$value->courseid]['evaluacion']=$res[$value->courseid]['evaluacion']?$res[$value->courseid]['evaluacion']:$item->itemname==='Evaluación';
 				$res[$value->courseid]['total_actividades']=$actividadSco;
-
+			
 			}
-
+			
 			//
-
+			
 			//JAMP 171019
-
+		
 			if($item->itemmodule='hvp'){
 				$res[$value->courseid]['puntaje']+=$puntaje;
 				$res[$value->courseid]['puntaje_max']+=$puntajemax;
@@ -258,28 +261,32 @@ class OITUtils{
 			}elseif($item->itemname==='Diagnóstico'){
 				$res[$value->courseid]['puntaje_diagnostico']+=$puntaje;
 			}
-
+			
 						if($item->itemmodule='scorm'){
-				$res[$value->courseid]['aprobadas']=0;
-				//$res[$value->courseid]['reprobadas']=0;
-
-
+				$res[$value->courseid]['aprobadas']=0;			
+				$res[$value->courseid]['reprobadas']=0;
+							
+			
 				$res[$value->courseid]['puntaje']+=$puntajeSco;
 				$res[$value->courseid]['puntaje_max']+=$puntajemax;
 				$res[$value->courseid]['aprobadas']=self::completed($value->courseid);
-				$res[$value->courseid]['reprobadas']+=($puntajeSco/$puntajemax)<0.6;
-
+				//$res[$value->courseid]['reprobadas']+=($puntajeSco/$puntajemax)<0.6;
+				
 				//echo self::completed($value->courseid);
 				//echo $value->courseid."+".$scoCompleted."Completados<br>";
 				//echo $actividadSco."Totales<br>";
 				//echo $puntajeSco/$puntajemax."puntajeSco/puntajeMax<br>";
 
+
+
+
+				
 			}elseif($item->itemname==='Evaluación'){
 				$res[$value->courseid]['puntaje_evaluacion']+=$puntajeSco;
 			}elseif($item->itemname==='Diagnóstico'){
 				$res[$value->courseid]['puntaje_diagnostico']+=$puntajeSco;
 			}
-
+			
 			//
 		}
 		self::$grades=$res;
@@ -290,10 +297,10 @@ class OITUtils{
 		$puntajesmaximoslecciones=$DB->get_records('grade_items',array('courseid'=>$courseid,'itemmodule'=>'hvp'));
 		//JAMP 171019
 		//$puntajesmaximosleccionesSco=$DB->get_records('grade_items',array('courseid'=>$courseid,'itemmodule'=>'scorm'));
-
+		
 		$puntajesmaximosleccionesSco=$DB->get_records_sql("select * from mdl_grade_items where courseid='$courseid' and itemmodule='scorm'");
-
-
+		
+		
 		//
 		$puntajemaxcurso=1;
 		if(is_array($puntajesmaximoslecciones)){
@@ -302,7 +309,7 @@ class OITUtils{
 				$puntajemaxcurso+=intval($value->grademax);
 			}
 		}
-
+		
 		//JAMP 171019
 		if(is_array($puntajesmaximosleccionesSco)){
 			$puntajemaxcurso=0;
@@ -344,7 +351,7 @@ class OITUtils{
 		if(count($modarray)>=1){
 			return $modarray;
 		}
-	}
+	}	
 	static public function getmenudesplegable(){
 		global $OUTPUT, $DB, $SESSION, $CFG,$PAGE,$USER;
 		$returnobject = new stdClass();
@@ -545,13 +552,13 @@ class OITUtils{
 		$estadoTerminado=html_writer::img("/oit/img/menu/$etapa/ico_seccion_terminado.png","icono");
 
 		$seccion=(object) array('puntaje'=>0,'estado'=>$estadoBloqueado);
-
+		
 		self::updategrades($USER->id);
 		$totales=self::$grades[$id]['total_actividades'];
 		$aprobadas=self::$grades[$id]['aprobadas'];
 		$reprobadas=self::$grades[$id]['reprobadas'];
 		$total_actividades=self::$grades[$id]['total_actividades'];
-
+		
 		if ($cmid===null) {
 			$puntajeLecciones=round(50*self::$grades[$id]['puntaje']/self::$grades[$id]['puntaje_max']);
 			$seccion->puntaje=!is_nan($puntajeLecciones)?$puntajeLecciones:0;
@@ -573,7 +580,7 @@ class OITUtils{
 		$quizobj = quiz::create($cm->instance, $USER->id);
 		$quiz = $quizobj->get_quiz();
 		$attempts = quiz_get_user_attempts($quiz->id, $USER->id, 'finished', true);
-
+		
 		if($cm->name=='Diagnóstico'){
 			$seccion->estado=$estadoPendiente;
 			$seccion->puntaje='';
@@ -594,7 +601,7 @@ class OITUtils{
 
 	/**
 	 * Funcion que modifica el comportamiento del menu lateral
-	 *
+	 * 
 	 * @return flat_navigation 			Menu de navegacion lateral
 	 */
 	static public function getmenu(){
@@ -629,7 +636,7 @@ class OITUtils{
 				break;
 				//Se especifican las excepciones para los items de menu que tienen puntaje
 				case 'Diagnóstico':
-
+				
 				//Se vuelven visibles
 				$value->visible=true;
 
@@ -654,7 +661,7 @@ class OITUtils{
 		}
 
 		if($courseid){
-			//Se crea un item del menu de navegacion
+			//Se crea un item del menu de navegacion 
 			$menuItemArray=array('action'=>false,
 				'text'=>'Puntos',
 				'key'=>'puntaje',
@@ -662,7 +669,7 @@ class OITUtils{
 
 			$menuItem=new navigation_node($menuItemArray,0);
 
-			//Se setean parametros adicionales
+			//Se setean parametros adicionales  
 			$menuItem->visible=true;
 			$menuItem->action= new moodle_url("/oit/ranking.php?id=$courseid");
 			$menuItem->indent=0;
@@ -704,8 +711,8 @@ class OITUtils{
 			default:
 			$timestart = $today;
 			break;
-		}
-		if ($extendperiod <= 0) { $timeend = 0; }
+		}  
+		if ($extendperiod <= 0) { $timeend = 0; }  
 		else { $timeend = $timestart + $extendperiod; }
 		$enrolled = $enrol_manual->enrol_user($instance, $userid, $roleid, $timestart, $timeend);
 		add_to_log($course->id, 'course', 'enrol', '../enrol/users.php?id='.$course->id, $course->id);
@@ -889,17 +896,17 @@ class OITUtils{
 	}
 
 	/**
-	 *	Devuelve un arreglo de objetos con los campos id y nombre completo que esten dentro
-	 * 	del departamento especificado
-	 *
+	 *	Devuelve un arreglo de objetos con los campos id y nombre completo que esten dentro 
+	 * 	del departamento especificado 
+	 * 
 	 * @param  String o null 		$departamento 		Nombre del departamento a filtrar
-	 *
-	 * @return array<stdObject> 	un arreglo de objetos con los campos id y nombre completo que esten dentro
-	 * 								del departamento especificado
+	 * 
+	 * @return array<stdObject> 	un arreglo de objetos con los campos id y nombre completo que esten dentro 
+	 * 								del departamento especificado 
 	 */
 	static public function getusers($departamento=null,$id=null){
 		global $DB;
-
+		
 
 		//Query para obtener los usuarios activos
 		$SQL = "SELECT 	u.id,
@@ -911,7 +918,7 @@ class OITUtils{
 		u.imagealt,
 		uid.data AS departamento
 		FROM {user} u
-		INNER JOIN {user_info_data} uid ON u.id = uid.userid
+		INNER JOIN {user_info_data} uid ON u.id = uid.userid 
 		WHERE (u.deleted = 0)";
 
 		//Si existe departamento adicionar condiciones para filtrar por departamento
@@ -928,15 +935,15 @@ class OITUtils{
 	}
 
 	/**
-	 * Devuelve una lista de los ids de usuarios del departamento especificado categorizados
-	 * por pedientes de iniciar el curso, realizando y terminado el curso, estos
+	 * Devuelve una lista de los ids de usuarios del departamento especificado categorizados 
+	 * por pedientes de iniciar el curso, realizando y terminado el curso, estos 
 	 * dos ultimos con las subcategorias bien y mal
-	 *
+	 * 
 	 * @param  int 					$courseid 			Id del curso del que se quiere el reporte
 	 * @param  String 				$departamento 		Nombre del departamento por el cual filtrar
-	 *
-	 * @return array asociativo		Listado de ids de usuarios del departamento especificado categorizados
-	 * 								por pedientes de iniciar el curso, realizando y terminado el curso, estos
+	 * 
+	 * @return array asociativo		Listado de ids de usuarios del departamento especificado categorizados 
+	 * 								por pedientes de iniciar el curso, realizando y terminado el curso, estos 
 	 * 								dos ultimos con las subcategorias bien y mal
 	 *								se devuelve el siguiente array
 	 *								array(
@@ -947,8 +954,8 @@ class OITUtils{
 	 *								'encurso'=>array(),
 	 *								'pendientes'=>array()
 	 *								)
-	 *
-	 */
+	 * 
+	 */			
 	static public function getreporte($courseid,$departamento=null){
 		global $DB;
 
@@ -957,7 +964,7 @@ class OITUtils{
 
 		//Obtener los usuarios del reporte
 		$usuarios=self::getusers($departamento);
-
+		
 
 
 		foreach ($usuarios as $user) {
@@ -974,7 +981,7 @@ class OITUtils{
 				//Calcular el puntaje total
 				$puntajetotal=5*$nota['puntaje_evaluacion']+50*$nota['puntaje']/$nota['puntaje_max'];
 
-				//Si el puntaje es mayor que 60 meter al usuario en la subcategoria bien,
+				//Si el puntaje es mayor que 60 meter al usuario en la subcategoria bien, 
 				//de lo contrario en la subcategoria mal
 				$terminaron[$puntajetotal>60?'bien':'mal'][]=$user;
 
@@ -990,7 +997,7 @@ class OITUtils{
 	/**
 	 * Devuelve un listado con los usuarios que han terminado o estan realizando el curso especificado
 	 * filtrado por departamento y estado
-	 *
+	 * 
 	 * @param  int 		$courseid     	Id del curso
 	 * @param  array 	$reporte      	Reporte del curso
 	 * @param  string 	$estado       	filtro de estado En curso, Terminado bien o Terminado mal
@@ -1032,7 +1039,7 @@ class OITUtils{
 
 				$color='verde';
 
-			}elseif(in_array($usuario, $reporte['encurso'])&&!($estado=='Aprobaron'||$estado=='Reprobaron')){
+			}elseif(in_array($usuario, $reporte['encurso'])&&!($estado=='Aprobaron'||$estado=='Reprobaron')){ 
 
 				$color='amarillo';
 
@@ -1076,12 +1083,12 @@ class OITUtils{
 	}
 	static public function getLeccionesTotales($courseid){
 		global $DB;
-
+		
 		//JAMP 171019
 		return $DB->count_records('grade_items',array('courseid'=>$courseid,'itemmodule'=>'hvp'))+$DB->count_records('grade_items',array('courseid'=>$courseid,'itemmodule'=>'scorm'));
 		//
 	}
-
+	
 }
 
 class PerformanceTime{
@@ -1106,11 +1113,11 @@ class PerformanceTime{
 	}
 
 	public function startWall(){
-		$this->startWallTime = microtime(true);
+		$this->startWallTime = microtime(true); 
 	}
 
 	public function endWall(){
-		$this->endWallTime = microtime(true);
+		$this->endWallTime = microtime(true); 
 	}
 
 	public function printWall(){
@@ -1134,12 +1141,12 @@ class Reporte{
 //TODO Incluir scorm en reporte
 		$this->initParamsSQL(
 			"SELECT gi.courseid,
-			SUM(gi.grademax) as puntajes_maximos,
-			COUNT(*) as total_lecciones
-			FROM {grade_items} gi
+			SUM(gi.grademax) as puntajes_maximos, 
+			COUNT(*) as total_lecciones 
+			FROM {grade_items} gi 
 			WHERE gi.itemmodule='hvp'
 			AND gi.courseid IN ($this->cursos)
-			GROUP BY gi.courseid
+			GROUP BY gi.courseid			
 			");
 	}
 
@@ -1159,11 +1166,11 @@ class Reporte{
 
 		$idusuarios=count($usuarios)==0?'0':implode(',',array_keys($usuarios));
 
-		$sql="SELECT CONCAT(gi.courseid,'_',gg.userid) as id,
-		gg.finalgrade
-		FROM {grade_grades} gg
-		INNER JOIN {grade_items} gi ON gi.id=gg.itemid
-		WHERE gi.itemname = 'Evaluación' AND
+		$sql="SELECT CONCAT(gi.courseid,'_',gg.userid) as id,  
+		gg.finalgrade 
+		FROM {grade_grades} gg 
+		INNER JOIN {grade_items} gi ON gi.id=gg.itemid 
+		WHERE gi.itemname = 'Evaluación' AND 
 		gg.aggregationstatus='used' AND
 		gg.userid IN ($idusuarios) AND
 		gi.courseid IN ($this->cursos)";
@@ -1171,10 +1178,10 @@ class Reporte{
 		$evaluacion=$DB->get_records_sql($sql);
 
 		$sql="SELECT CONCAT(gi.courseid,'_',gg.userid) as id,
-		COUNT(*) as diagnostico
-		FROM {grade_grades} gg
-		INNER JOIN {grade_items} gi ON gi.id=gg.itemid
-		WHERE gi.itemname = 'Diagnóstico' AND
+		COUNT(*) as diagnostico 
+		FROM {grade_grades} gg 
+		INNER JOIN {grade_items} gi ON gi.id=gg.itemid 
+		WHERE gi.itemname = 'Diagnóstico' AND 
 		gg.aggregationstatus='used' AND
 		gg.userid IN ($idusuarios) AND
 		gi.courseid IN ($this->cursos)
@@ -1182,12 +1189,12 @@ class Reporte{
 
 		$diagnostico=$DB->get_records_sql($sql);
 
-		$sql="SELECT CONCAT(gi.courseid,'_',gg.userid) as id,
+		$sql="SELECT CONCAT(gi.courseid,'_',gg.userid) as id, 
 		COUNT(*) as realizadas,
 		SUM(gg.finalgrade) as raw
-		FROM {grade_grades} gg
-		INNER JOIN {grade_items} gi ON gg.itemid=gi.id
-		WHERE gi.itemmodule='hvp' AND
+		FROM {grade_grades} gg 
+		INNER JOIN {grade_items} gi ON gg.itemid=gi.id 
+		WHERE gi.itemmodule='hvp' AND 
 		gg.aggregationstatus='used'  AND
 		gg.userid IN ($idusuarios) AND
 		gi.courseid IN ($this->cursos)
@@ -1196,7 +1203,7 @@ class Reporte{
 		$lecciones=$DB->get_records_sql($sql);
 
 		$reporte=array();
-
+		
 		foreach ($this->courseid as $curso) {
 			$encurso=$pendientes=array();
 			$terminaron=array('bien'=>array(),'mal'=>array());
@@ -1214,7 +1221,7 @@ class Reporte{
 					//Calcular el puntaje total
 					$puntajetotal=5*$evaluacion[$id]->finalgrade+50*$lecciones[$id]->raw/$this->puntajes_maximos[$curso];
 
-					//Si el puntaje es mayor que 60 meter al usuario en la subcategoria bien,
+					//Si el puntaje es mayor que 60 meter al usuario en la subcategoria bien, 
 					//de lo contrario en la subcategoria mal
 					$terminaron[$puntajetotal>60?'bien':'mal'][]=$usuario;
 
